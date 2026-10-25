@@ -1,0 +1,316 @@
+{
+  "config": {
+    "configFile": "/home/claude/teamspark-github/playwright.config.js",
+    "rootDir": "/home/claude/teamspark-github/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/claude/teamspark-github/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/claude/teamspark-github/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "teamspark.spec.js",
+      "file": "teamspark.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "UI-01 | REQ-TS-06 | Search | type \"python\" in the search box, then type \"cobol\" | Expected: only ML Study Recommender for python; \"No listings match\" message for cobol",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:23:57.166Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-9edcce611e7e6e884903",
+          "file": "teamspark.spec.js",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "UI-02 | REQ-TS-04 | Create listing | fill the form and click Post listing; then submit with an empty title | Expected: new listing appears in Browse (5 teams); empty title shows an error and adds nothing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 720,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:23:58.062Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-4d6fbed4e6b0a2e8781c",
+          "file": "teamspark.spec.js",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "UI-03 | REQ-TS-08, 09 | Access rules | open your own listing, then another student's listing | Expected: your listing shows only \"Find suggested candidates\"; the other shows only \"Apply to join\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 876,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:23:58.806Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-5be327d03d75d9dc798a",
+          "file": "teamspark.spec.js",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "UI-04 | REQ-TS-08 | Suggested candidates | post a listing needing react, node.js, mongodb; open it and click Find suggested candidates; invite the first candidate | Expected: 3 candidates, Arjun Rao first with 89%; Invite button turns into disabled \"Invited\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 929,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:23:59.703Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-939357b55297b6f466ed",
+          "file": "teamspark.spec.js",
+          "line": 50,
+          "column": 1
+        },
+        {
+          "title": "UI-05 | REQ-TS-09 | Join request | open Smart Attendance App and click Apply to join; then open the same listing again | Expected: Requests page shows the application as Pending; reopening the listing shows a disabled \"Request sent\" button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 980,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:24:00.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-e4514ee15897d5452974",
+          "file": "teamspark.spec.js",
+          "line": 63,
+          "column": 1
+        },
+        {
+          "title": "UI-06 | REQ-TS-05 | Delete listing | click Delete on your own listing twice | Expected: first click asks \"Click again to confirm\"; second click removes the listing (3 teams left)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 456,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:24:01.643Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-519ec948bba721428d0e",
+          "file": "teamspark.spec.js",
+          "line": 73,
+          "column": 1
+        },
+        {
+          "title": "UI-07 | NFR-TS-09 | Mobile layout | open the site at phone width (375 x 700 px) | Expected: listings visible and the page does not scroll sideways",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 494,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T15:24:02.113Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38447a3824a62c3ec8ab-823d4f712d37096d6c91",
+          "file": "teamspark.spec.js",
+          "line": 82,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T15:23:56.471Z",
+    "duration": 6247.25,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
