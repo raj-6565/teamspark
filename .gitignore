@@ -1,0 +1,5 @@
+node_modules/
+coverage/
+coverage-src/
+test-results/
+playwright-report/

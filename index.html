@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>TeamSpark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: light blue intro band with search and a live example of a ranked match, then a two-column grid of team cards.
+   Each skill has its own pastel colour so a card can be read at a glance. The score is the one marker-yellow element. */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#18203A; --sub:#5A647D; --line:#E4E7EE; --hover:#F5F6F9;
+  --accent:#2563EB; --accent-ink:#FFFFFF; --accent-soft:#E6EEFF; --band:#E4EDFF;
+  --mark:#FFE45C; --mark-ink:#2B2400; --warn:#C2410C; --warn-bg:#FFEDE2; --ok:#0B8A66; --ok-bg:#DAF5EA; --shadow:rgba(24,32,58,.45);
+  --react-bg:#DCEBFF; --react-fg:#1D4ED8; --node-bg:#DAF5E3; --node-fg:#15803D; --python-bg:#FFF1C2; --python-fg:#92600A;
+  --figma-bg:#FFE0EE; --figma-fg:#BE185D; --mongo-bg:#D3F4EE; --mongo-fg:#0F766E; --ml-bg:#EBE3FF; --ml-fg:#6D28D9;
+  --css-bg:#FFE6D2; --css-fg:#C2410C; --other-bg:#EAEEF5; --other-fg:#475069;
+  color-scheme:light; --display:'Inter','Segoe UI',system-ui,sans-serif;
+  --body:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font:15.5px/1.5 var(--body);
+  padding-block:0; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+}
+h1,h2,h3{font-family:var(--display); letter-spacing:-0.015em; text-wrap:balance;}
+button,input,textarea{font:inherit; color:inherit;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+.wrap{max-width:1080px; margin:0 auto;}
+.bleed{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding-inline:max(16px, env(safe-area-inset-left, 0px));}
+
+/* top bar */
+.topbar{background:var(--surface); border-bottom:1px solid var(--line); position:sticky; top:env(safe-area-inset-top, 0px); z-index:20;}
+.topbar .wrap{display:flex; align-items:center; gap:26px; min-height:62px; flex-wrap:wrap;}
+.logo{display:flex; align-items:center; gap:9px; font:700 21px var(--display); letter-spacing:-0.02em;}
+.tabs{display:flex; gap:4px;}
+.tab{border:none; background:none; color:var(--sub); font-weight:600; padding:8px 14px; border-radius:999px; cursor:pointer;}
+.tab:hover{background:var(--hover); color:var(--ink);}
+.tab.active{background:var(--accent-soft); color:var(--accent);}
+.who{margin-left:auto; display:flex; align-items:center; gap:10px; font-weight:600; font-size:14px;}
+.avatar{width:32px; height:32px; border-radius:50%; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font:700 13px var(--body); flex:none;}
+
+/* buttons */
+.btn{border:1px solid transparent; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14.5px; cursor:pointer; white-space:nowrap;}
+.btn-primary{background:var(--accent); color:var(--accent-ink);}
+.btn-primary:hover{filter:brightness(1.1);}
+.btn-ghost{background:var(--surface); border-color:var(--line); color:var(--ink);}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent);}
+.btn:disabled{opacity:.55; cursor:not-allowed; filter:none; border-color:var(--line); color:var(--ink);}
+.btn-sm{padding:7px 13px; font-size:13.5px; border-radius:8px;}
+
+/* intro band */
+.hero{background:var(--band); position:relative; overflow:hidden; border-bottom:1px solid var(--line);}
+.hero .wrap{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:40px; align-items:center; padding-block:52px;}
+.hero h1{font-size:44px; line-height:1.07; max-width:15em;}
+.hero .lead{color:var(--sub); font-size:17px; margin:14px 0 24px; max-width:34em;}
+.search{position:relative; max-width:520px;}
+.search svg{position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--sub); pointer-events:none;}
+.search input{width:100%; padding:14px 16px 14px 44px; border:1px solid var(--line); border-radius:12px; background:var(--surface); box-shadow:0 1px 2px rgba(24,32,58,.06);}
+.search input::placeholder{color:var(--sub);}
+.filters{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; align-items:center; font-size:13.5px; color:var(--sub); font-weight:500;}
+.fchip{border:none; border-radius:999px; padding:5px 12px; font-weight:600; font-size:13px; cursor:pointer; background:var(--surface); color:var(--ink); border:1px solid var(--line);}
+.fchip:hover{border-color:var(--accent);}
+.fchip.on{background:var(--ink); border-color:var(--ink); color:var(--surface);}
+.hero-demo{position:relative; justify-self:end; width:100%; max-width:380px;}
+.hero-demo::before,.hero-demo::after{content:""; position:absolute; border-radius:50%; z-index:0;}
+.hero-demo::before{width:150px; height:150px; background:var(--figma-bg); right:-44px; top:-40px;}
+.hero-demo::after{width:96px; height:96px; background:var(--node-bg); left:-34px; bottom:-30px;}
+.demo{position:relative; z-index:1; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 14px 34px rgba(24,32,58,.12);}
+.demo .need{font-size:13px; color:var(--sub); margin-bottom:2px;}
+.demo h3{font-size:18px; margin-bottom:8px;}
+.demo .best{display:flex; justify-content:space-between; align-items:center; margin:14px 0 10px; padding-top:14px; border-top:1px solid var(--line);}
+.demo .best b{font-size:16px;}
+.demo .tiny{font-size:12.5px; color:var(--sub);}
+
+/* open teams */
+.listhead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; padding:36px 0 16px; flex-wrap:wrap;}
+.listhead h2{font-size:28px; line-height:1.15;}
+.listhead p{color:var(--sub);}
+.grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding-bottom:64px; align-items:stretch;}
+.card{background:var(--surface); border:1px solid var(--line); box-shadow:0 1px 2px rgba(24,32,58,.05); border-radius:16px; padding:20px; cursor:pointer; display:flex; flex-direction:column; gap:12px; transition:border-color .15s, box-shadow .15s;}
+.card:hover{border-color:var(--accent); box-shadow:0 8px 24px rgba(37,99,235,.10);}
+.card-top{display:flex; align-items:center; gap:10px;}
+.card-top .avatar{width:34px; height:34px; font-size:12.5px;}
+.by{font-weight:600; font-size:14px; line-height:1.2;}
+.status-open{font-size:12.5px; color:var(--ok); font-weight:600; display:flex; align-items:center; gap:6px;}
+.status-open::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--ok);}
+.slots{margin-left:auto; display:flex; gap:4px;}
+.slots i{width:11px; height:11px; border-radius:50%; border:2px solid var(--line);}
+.slots i.f{background:var(--accent); border-color:var(--accent);}
+.card h3{font-size:19px; line-height:1.25;}
+.card .desc{color:var(--sub); font-size:14.5px; flex:1;}
+.skills{display:flex; flex-wrap:wrap; gap:6px;}
+.chip{font-weight:600; font-size:12.5px; padding:3px 10px; border-radius:999px; background:var(--other-bg); color:var(--other-fg);}
+.sk-react{background:var(--react-bg); color:var(--react-fg);} .sk-node{background:var(--node-bg); color:var(--node-fg);}
+.sk-python{background:var(--python-bg); color:var(--python-fg);} .sk-figma{background:var(--figma-bg); color:var(--figma-fg);}
+.sk-mongodb{background:var(--mongo-bg); color:var(--mongo-fg);} .sk-ml{background:var(--ml-bg); color:var(--ml-fg);}
+.sk-css{background:var(--css-bg); color:var(--css-fg);}
+.card-foot{display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13.5px; color:var(--sub); border-top:1px solid var(--line); padding-top:12px; min-height:50px;}
+.owner-row{display:flex; gap:10px; align-items:center;}
+.owner-tag{font-size:12.5px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:999px;}
+.empty{text-align:center; color:var(--sub); padding:44px 20px; background:var(--surface); border:1px dashed var(--line); border-radius:16px;}
+.grid .empty{grid-column:1 / -1;}
+
+/* drawer */
+.overlay{position:fixed; inset:0; background:var(--shadow); display:none; justify-content:flex-end; z-index:50;}
+.overlay.show{display:flex;}
+.panel{background:var(--surface); width:min(540px,100%); height:100%; overflow-y:auto; padding:28px max(20px, env(safe-area-inset-right, 0px)) 40px 28px; animation:slidein .22s ease-out;}
+@keyframes slidein{from{transform:translateX(24px); opacity:0;} to{transform:none; opacity:1;}}
+.panel-close{float:right; background:var(--hover); border:none; border-radius:50%; width:34px; height:34px; font-size:20px; line-height:1; color:var(--sub); cursor:pointer;}
+.panel h2{font-size:25px; line-height:1.2; margin-bottom:8px; padding-right:44px;}
+.note{font-size:13.5px; color:var(--sub); margin-top:10px; max-width:52ch;}
+
+/* suggestions */
+.cand{display:grid; grid-template-columns:28px minmax(0,1fr) auto; column-gap:12px; padding:18px 0; border-top:1px solid var(--line);}
+.cand:first-of-type{margin-top:18px;}
+.rank{font:700 14px var(--display); color:var(--sub); padding-top:2px;}
+.cand-name{font-weight:700; font-size:16.5px;}
+.cand-score{font:700 24px var(--display); line-height:1;}
+mark{background:linear-gradient(transparent 38%, var(--mark) 38%, var(--mark) 92%, transparent 92%); color:inherit; padding:0 4px;}
+.why{font-size:13.5px; color:var(--sub); margin-top:2px;}
+.cand .bars{grid-column:2 / 4; margin-top:10px; display:grid; gap:6px;}
+.cand .btn{grid-column:2 / 4; justify-self:start; margin-top:12px;}
+.bar-row{display:grid; grid-template-columns:92px 1fr 38px; align-items:center; gap:10px; font-size:12.5px; color:var(--sub);}
+.bar-row span:last-child{text-align:right; font-weight:600;}
+.bar-track{height:6px; background:var(--hover); border-radius:3px; overflow:hidden;}
+.bar-fill{height:100%; background:var(--accent); border-radius:3px; width:0%; transition:width .5s ease;}
+
+/* forms */
+.formpage{max-width:560px; padding:40px 0 72px;}
+.formpage h2{font-size:28px; margin-bottom:4px;}
+.formpage > p.lead{color:var(--sub); margin-bottom:24px;}
+.formcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px;}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:14px; font-weight:700; margin-bottom:6px;}
+.field input, .field textarea{width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:10px; background:var(--bg);}
+.field input:focus, .field textarea:focus{background:var(--surface);}
+.field textarea{resize:vertical; min-height:84px;}
+.hint{font-size:13px; color:var(--sub); margin-top:6px;}
+.error{font-size:14px; color:var(--warn); background:var(--warn-bg); border-radius:10px; padding:9px 13px; margin-top:14px; display:none;}
+.saved{font-size:14px; color:var(--ok); margin-top:12px; display:none; font-weight:700;}
+
+/* requests */
+.section-title{font-size:22px; margin:36px 0 4px;}
+.section-sub{color:var(--sub); font-size:14px; margin-bottom:12px;}
+.reqlist{display:grid; gap:10px;}
+.req-row{background:var(--surface); border:1px solid var(--line); border-radius:14px; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 18px; flex-wrap:wrap;}
+.req-row .sub{font-size:13.5px; color:var(--sub);}
+.badge{font:700 12.5px var(--body); padding:4px 11px; border-radius:999px;}
+.badge-pending{background:var(--warn-bg); color:var(--warn);}
+.badge-accepted{background:var(--ok-bg); color:var(--ok);}
+.badge-rejected{background:var(--other-bg); color:var(--other-fg);}
+
+@media(max-width:860px){
+  .hero .wrap{grid-template-columns:minmax(0,1fr); padding-block:36px;}
+  .hero h1{font-size:34px;}
+  .hero-demo{display:none;}
+  .grid{grid-template-columns:minmax(0,1fr);}
+}
+@media(max-width:640px){
+  .topbar .wrap{gap:0 16px; padding-top:10px;}
+  .tabs{order:3; width:100%; padding-bottom:8px; margin-left:-6px;}
+  .who span.nm{display:none;}
+  .hero h1{font-size:30px;}
+  .listhead h2{font-size:24px;}
+}
+@media (prefers-reduced-motion: reduce){ .panel{animation:none;} .bar-fill{transition:none;} }
+
+/* ---- landing sections ---- */
+:root{--hero-bg:#FFFFFF; --hero-ink:#18203A; --hero-sub:#5A647D; --hero-line:#D3D8E2;}
+.hero{background:var(--hero-bg); color:var(--hero-ink); border-bottom:1px solid var(--line);}
+.hero .wrap{padding-block:72px 84px; gap:56px; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);}
+.hero h1{font-size:58px; line-height:1.02; max-width:12em; letter-spacing:-0.025em;}
+.hero .lead{color:var(--hero-sub); font-size:19px; margin:20px 0 30px; max-width:30em;}
+.cta-row{display:flex; gap:12px; flex-wrap:wrap;}
+.btn-lg{padding:14px 26px; font-size:16px; border-radius:12px;}
+.btn-mark{background:var(--mark); color:var(--mark-ink);}
+.btn-mark:hover{filter:brightness(1.05);}
+.btn-outline{background:transparent; color:var(--hero-ink); border-color:var(--hero-line);}
+.btn-outline:hover{border-color:var(--hero-ink);}
+.hero .note-line{margin-top:22px; font-size:14px; color:var(--hero-sub);}
+.hero-demo{max-width:420px;}
+.hero-demo::before{background:var(--mark); opacity:.6; width:170px; height:170px; right:-50px; top:-50px;}
+.hero-demo::after{background:var(--react-bg); width:120px; height:120px; left:-40px; bottom:-36px;}
+.demo{box-shadow:0 18px 44px rgba(24,32,58,.12); color:var(--ink);}
+
+.section{padding-block:76px;}
+.section.alt{background:var(--surface); border-block:1px solid var(--line);}
+.section-head{max-width:640px; margin-bottom:34px;}
+.section-head h2{font-size:38px; line-height:1.08;}
+.section-head p{color:var(--sub); font-size:17px; margin-top:10px;}
+
+.factors{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--surface);}
+.factor{padding:24px 22px; border-left:1px solid var(--line);}
+.factor:first-child{border-left:none;}
+.factor .w{font:700 40px var(--display); line-height:1; letter-spacing:-0.02em;}
+.factor h3{font-size:17px; margin:12px 0 4px;}
+.factor p{font-size:14px; color:var(--sub);}
+
+.seg-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+.seg{border:1px solid var(--line); background:var(--surface); color:var(--ink); font-weight:700; padding:9px 18px; border-radius:999px; cursor:pointer;}
+.seg:hover{border-color:var(--accent);}
+.seg.on{background:var(--ink); border-color:var(--ink); color:var(--surface);}
+.roles{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px;}
+.role-card{background:var(--bg); border:1px solid var(--line); border-radius:16px; padding:22px;}
+.role-card h3{font-size:19px; margin-bottom:6px;}
+.role-card p{color:var(--sub); font-size:15px;}
+.role-card .tag{display:inline-block; margin-top:14px; font-size:12.5px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent);}
+.role-card .tag.soon{background:var(--other-bg); color:var(--other-fg);}
+
+.teams-bar{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:end; margin-bottom:6px;}
+.teams-bar h2{font-size:38px; line-height:1.08;}
+.teams-bar p{color:var(--sub); margin-top:6px;}
+#view-browse .search{max-width:none; margin-top:22px;}
+#view-browse .search input{box-shadow:none;}
+#view-browse .filters{margin-bottom:22px;}
+.grid{padding-bottom:0;}
+
+.steps{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; counter-reset:step;}
+.step{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px; position:relative;}
+.step::before{counter-increment:step; content:counter(step); display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--mark); color:var(--mark-ink); font:700 17px var(--display); margin-bottom:14px;}
+.step h3{font-size:19px; margin-bottom:6px;}
+.step p{font-size:15px; color:var(--sub);}
+
+.faq{max-width:760px;}
+.faq details{border-top:1px solid var(--line); padding:18px 0;}
+.faq details:last-child{border-bottom:1px solid var(--line);}
+.faq summary{cursor:pointer; font:600 18px var(--display); list-style:none; display:flex; justify-content:space-between; gap:16px;}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary::after{content:"+"; font:500 24px var(--body); color:var(--accent); line-height:1;}
+.faq details[open] summary::after{content:"\2212";}
+.faq details p{color:var(--sub); margin-top:10px; max-width:60ch;}
+
+.cta-band{background:var(--hero-bg); color:var(--hero-ink); border-top:1px solid var(--line);}
+.cta-band .wrap{display:flex; justify-content:space-between; align-items:center; gap:24px; padding-block:48px; flex-wrap:wrap;}
+.cta-band h2{font-size:34px; line-height:1.1; max-width:16em;}
+.footer{background:var(--surface); border-top:1px solid var(--line);}
+.footer .wrap{padding-block:34px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; color:var(--sub); font-size:14px;}
+.footer b{color:var(--ink);}
+
+@media(max-width:900px){
+  .hero h1{font-size:42px;}
+  .hero .wrap{padding-block:48px 56px; grid-template-columns:minmax(0,1fr);}
+  .factors{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .factor:nth-child(3){border-left:none;}
+  .factor:nth-child(n+3){border-top:1px solid var(--line);}
+  .roles,.steps{grid-template-columns:minmax(0,1fr);}
+  .section{padding-block:52px;}
+  .section-head h2,.teams-bar h2{font-size:30px;}
+}
+@media(max-width:640px){
+  .hero h1{font-size:34px;} .hero .lead{font-size:17px;}
+  .factors{grid-template-columns:minmax(0,1fr);}
+  .factor{border-left:none; border-top:1px solid var(--line);} .factor:first-child{border-top:none;}
+  .teams-bar{grid-template-columns:minmax(0,1fr);}
+  .cta-band h2{font-size:27px;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar bleed"><div class="wrap">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="10" cy="14" r="9" fill="var(--accent)"/><circle cx="18" cy="14" r="9" fill="var(--mark)" fill-opacity=".92"/></svg>
+    TeamSpark
+  </div>
+  <nav class="tabs" aria-label="Main">
+    <button class="tab active" data-tab="browse">Browse</button>
+    <button class="tab" data-tab="create">Create</button>
+    <button class="tab" data-tab="requests">Requests</button>
+    <button class="tab" data-tab="profile">Profile</button>
+  </nav>
+  <div class="who"><span class="nm" id="who-name">You</span><span class="avatar" id="who-avatar">Y</span></div>
+</div></header>
+
+<div id="view-browse">
+  <section class="hero bleed">
+    <div class="wrap">
+      <div>
+        <h1>Build your hackathon team before the clock starts</h1>
+        <p class="lead">Post the project you want to build. TeamSpark ranks students by the skills you need, how much time they have and how past teams rated them, so you invite the right people first.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary btn-lg" onclick="goTeams()">Browse open teams</button>
+          <button class="btn btn-outline btn-lg" onclick="switchTab('create')">Post a team</button>
+        </div>
+        <p class="note-line">You always decide who joins. The system only suggests.</p>
+      </div>
+      <div class="hero-demo" id="hero-demo" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="section alt bleed">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>A match score you can explain</h2>
+        <p>Every suggestion shows the four things behind its percentage, so nobody has to trust a black box.</p>
+      </div>
+      <div class="factors">
+        <div class="factor"><div class="w">35%</div><h3>Skill match</h3><p>How many of the required skills the student already has.</p></div>
+        <div class="factor"><div class="w">20%</div><h3>Skill depth</h3><p>How strong they are in those skills, on a scale of 1 to 5.</p></div>
+        <div class="factor"><div class="w">25%</div><h3>Capacity</h3><p>Fewer ongoing projects means more time for yours.</p></div>
+        <div class="factor"><div class="w">20%</div><h3>Past rating</h3><p>How earlier teammates rated working with them.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bleed">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Made for everyone forming a team</h2>
+        <p>Pick your role to see what TeamSpark does for you.</p>
+      </div>
+      <div class="seg-row" id="seg-row"></div>
+      <div class="roles" id="roles"></div>
+    </div>
+  </section>
+
+  <section class="section alt bleed" id="teams">
+    <div class="wrap">
+      <div class="teams-bar">
+        <div>
+          <h2>Open teams</h2>
+          <p id="count">Teams looking for members</p>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="switchTab('create')">Post a team</button>
+      </div>
+      <div class="search">
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+        <input id="search" placeholder="Search teams by skill, e.g. React" aria-label="Search listings by skill">
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section class="section bleed">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>From idea to full team in three steps</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Post your project</h3><p>Write a title, the skills you need and your team size. It appears in Open teams straight away.</p></div>
+        <div class="step"><h3>See who fits best</h3><p>Open your listing to see the top three students, each with a score and the reasons behind it.</p></div>
+        <div class="step"><h3>Invite and confirm</h3><p>Invite the people you want. Students can also send you a request, and you accept or reject it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt bleed">
+    <div class="wrap">
+      <div class="section-head"><h2>Questions teams ask</h2></div>
+      <div class="faq">
+        <details><summary>Who decides who joins my team?</summary><p>You do. TeamSpark ranks students and shows why, but nobody is added until the listing owner invites them or accepts their request.</p></details>
+        <details><summary>Why not let the system pick the whole team?</summary><p>A score cannot see how people get along. A suggestion plus a human decision keeps the speed of automation and the judgement of the owner.</p></details>
+        <details><summary>Do I need an account?</summary><p>Not in this prototype. It runs in your browser as a single user. A full version would add sign-in and a shared database.</p></details>
+        <details><summary>Where is my data stored?</summary><p>In your own browser, so it stays on this device and is not shared with other users.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band bleed">
+    <div class="wrap">
+      <h2>Have a project in mind? Get your team moving today.</h2>
+      <button class="btn btn-primary btn-lg" onclick="switchTab('create')">Post a team</button>
+    </div>
+  </section>
+  <footer class="footer bleed">
+    <div class="wrap">
+      <span><b>TeamSpark</b> Hackathon project team formation system</span>
+      <span>CSE3132 Software Engineering Lab, Manipal University Jaipur. Raj Shukla (2427030683)</span>
+    </div>
+  </footer>
+</div>
+
+<main class="wrap">
+  <section id="view-create" class="formpage" style="display:none;">
+    <h2>Post a team</h2>
+    <p class="lead">Say what you are building and which skills you still need.</p>
+    <div class="formcard">
+      <div class="field"><label for="f-title">Title</label><input id="f-title" placeholder="Smart Attendance App"></div>
+      <div class="field"><label for="f-desc">Description</label><textarea id="f-desc" placeholder="What are you building, and for which event?"></textarea></div>
+      <div class="field"><label for="f-skills">Required skills</label><input id="f-skills" placeholder="React, Node.js, MongoDB"><p class="hint">Separate skills with commas.</p></div>
+      <div class="field"><label for="f-size">Team size</label><input id="f-size" type="number" value="4" min="1"></div>
+      <button class="btn btn-primary" onclick="createListing()">Post listing</button>
+      <p id="listing-error" class="error"></p>
+    </div>
+  </section>
+
+  <section id="view-requests" style="display:none; padding-bottom:72px;">
+    <h2 class="section-title" style="margin-top:40px;">Requests on your listings</h2>
+    <p class="section-sub">Accept or reject students who applied to a team you posted.</p>
+    <div class="reqlist" id="req-received"></div>
+    <h2 class="section-title">Teams you applied to</h2>
+    <p class="section-sub">Track the answer to each application you sent.</p>
+    <div class="reqlist" id="req-sent"></div>
+  </section>
+
+  <section id="view-profile" class="formpage" style="display:none;">
+    <h2>Your profile</h2>
+    <p class="lead">Your skills decide how you rank when someone searches for teammates.</p>
+    <div class="formcard">
+      <div class="field"><label for="p-name">Name</label><input id="p-name"></div>
+      <div class="field"><label for="p-skills">Skills and levels</label><input id="p-skills" placeholder="react:4, node.js:3"><p class="hint">Write each skill with a level from 1 to 5, for example react:5. Without a level it counts as 3.</p></div>
+      <button class="btn btn-primary" onclick="saveProfile()">Save profile</button>
+      <p id="p-saved" class="saved">Profile saved.</p>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay">
+  <aside class="panel" aria-label="Listing details">
+    <button class="panel-close" onclick="closePanel()" aria-label="Close">&times;</button>
+    <div id="panel-body"></div>
+  </aside>
+</div>
+
+<script>
+const SEED_STUDENTS = [
+  {name:"Aditi Sharma", skills:{"react":5,"node.js":4,"figma":2}, workload:0, rating:0.9},
+  {name:"Rohan Verma", skills:{"react":3,"python":5,"ml":5}, workload:1, rating:0.8},
+  {name:"Kavya Iyer", skills:{"node.js":5,"mongodb":4,"react":2}, workload:0, rating:0.7},
+  {name:"Dev Malhotra", skills:{"figma":5,"react":3,"css":4}, workload:2, rating:0.85},
+  {name:"Sana Khan", skills:{"python":4,"ml":4,"mongodb":3}, workload:0, rating:0.5},
+  {name:"Arjun Rao", skills:{"react":4,"node.js":5,"mongodb":5}, workload:1, rating:0.95},
+];
+const FILTER_SKILLS = ["react","node.js","python","figma","mongodb"];
+
+const STORE_KEY = "teamspark_v2";
+let state = loadState();
+
+function defaultState(){
+  return {
+    listings: [
+      {id:1, title:"Smart Attendance App", desc:"QR-based attendance system for classrooms, built over a hackathon weekend.", skills:["react","node.js","mongodb"], size:4, status:"Open", owner:"Ishaan Gupta", invited:[]},
+      {id:2, title:"Campus Event Finder", desc:"A lightweight web app aggregating club events across departments.", skills:["react","figma","css"], size:3, status:"Open", owner:"Meera Joshi", invited:[]},
+      {id:3, title:"ML Study Recommender", desc:"Recommends practice topics based on quiz performance history.", skills:["python","ml","mongodb"], size:3, status:"Open", owner:"Priya Nair", invited:[]},
+      {id:4, title:"Peer Code Review Tool", desc:"A lightweight tool for classmates to review each other's code before submission.", skills:["react","node.js"], size:3, status:"Open", owner:"You", invited:[]}
+    ],
+    requests: [
+      {id:1, listingId:2, student:"You", listing:"Campus Event Finder", owner:"Meera Joshi", status:"Pending"}
+    ],
+    nextId: 5,
+    nextReqId: 2,
+    user: {name:"You", skills:{"react":4,"node.js":3}, rating:0.75, memberOf:[]}
+  };
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if(!parsed.listings || !parsed.user) return defaultState();
+    return parsed;
+  }catch(e){ return defaultState(); }
+}
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ /* storage unavailable, continue in-memory */ }
+}
+
+function skillMatch(req, stud){
+  const have = req.filter(s => stud.skills[s] !== undefined);
+  return req.length ? have.length/req.length : 0;
+}
+function skillDepth(req, stud){
+  const have = req.filter(s => stud.skills[s] !== undefined);
+  if(!have.length) return 0;
+  return have.reduce((a,s)=>a+stud.skills[s],0)/have.length/5;
+}
+function workloadCap(stud){ return Math.max(0, 1-((stud.workload||0)/3)); }
+function score(listing, stud){
+  const sm = skillMatch(listing.skills, stud);
+  const sd = skillDepth(listing.skills, stud);
+  const wc = workloadCap(stud);
+  const pr = stud.rating;
+  const total = 0.35*sm + 0.20*sd + 0.25*wc + 0.20*pr;
+  return {sm,sd,wc,pr,total};
+}
+
+const SK_CLASS = {"react":"sk-react","node.js":"sk-node","python":"sk-python","figma":"sk-figma","mongodb":"sk-mongodb","ml":"sk-ml","css":"sk-css"};
+function chip(s){ return `<span class="chip ${SK_CLASS[s]||''}">${s}</span>`; }
+const AV_COLORS = ["#2563EB","#0B8A66","#BE185D","#6D28D9","#C2410C","#0F766E"];
+function initials(n){ return n.trim().split(/\s+/).map(w=>w.charAt(0)).slice(0,2).join('').toUpperCase() || '?'; }
+function avatarColor(n){ let h=0; for(const c of n) h=(h*31+c.charCodeAt(0))%97; return AV_COLORS[h%AV_COLORS.length]; }
+function renderHero(){
+  const demoListing = {title:"Smart Attendance App", skills:["react","node.js","mongodb"]};
+  const top = SEED_STUDENTS.map(s=>({s,...score(demoListing,s)})).sort((a,b)=>b.total-a.total)[0];
+  document.getElementById('hero-demo').innerHTML = `<div class="demo">
+    <div class="need">A team needs</div>
+    <h3>${demoListing.title}</h3>
+    <div class="skills">${demoListing.skills.map(chip).join('')}</div>
+    <div class="best"><div><b>${top.s.name}</b><div class="tiny">Best match from 6 students</div></div><span class="cand-score"><mark>${Math.round(top.total*100)}%</mark></span></div>
+    <div class="bars">${bar('Skill match',top.sm)}${bar('Skill depth',top.sd)}${bar('Capacity',top.wc)}${bar('Past rating',top.pr)}</div>
+  </div>`;
+  document.querySelectorAll('#hero-demo .bar-fill').forEach(el=>el.style.width=el.dataset.w+'%');
+}
+
+const ROLES = {
+  "Team owners": [
+    {t:"Rank students for your project", p:"Open your listing to see the three best matches with the score broken into its four parts.", g:"Available"},
+    {t:"Invite with one click", p:"Invite the students you want. Their status shows on your listing.", g:"Available"},
+    {t:"Reply to requests", p:"Accept or reject students who ask to join, from one Requests page.", g:"Available"}],
+  "Applicants": [
+    {t:"Find a team by skill", p:"Search by a skill or tap a popular one to see only teams that need it.", g:"Available"},
+    {t:"Send a request", p:"Ask to join in one click. The owner decides.", g:"Available"},
+    {t:"Track every answer", p:"See Pending, Accepted or Rejected for each team you asked.", g:"Available"}],
+  "Organisers": [
+    {t:"Review all listings", p:"See every team posted for your event and remove duplicates or spam.", g:"Planned"},
+    {t:"Manage users", p:"View registered students and handle problems with accounts.", g:"Planned"},
+    {t:"Activity reports", p:"Counts of teams formed and matches made during the event.", g:"Planned"}]
+};
+let roleOn = "Team owners";
+function renderRoles(){
+  document.getElementById('seg-row').innerHTML = Object.keys(ROLES).map(r=>`<button class="seg ${r===roleOn?'on':''}" onclick="setRole('${r}')">${r}</button>`).join('');
+  document.getElementById('roles').innerHTML = ROLES[roleOn].map(c=>`<div class="role-card"><h3>${c.t}</h3><p>${c.p}</p><span class="tag ${c.g==='Planned'?'soon':''}">${c.g}</span></div>`).join('');
+}
+function setRole(r){ roleOn = r; renderRoles(); }
+function goTeams(){
+  const el = document.getElementById('teams');
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(el && el.scrollIntoView) el.scrollIntoView({behavior: calm ? 'auto' : 'smooth', block:'start'});
+}
+function paintUser(){
+  const n = state.user.name || 'You';
+  document.getElementById('who-name').textContent = n;
+  document.getElementById('who-avatar').textContent = n.trim().charAt(0).toUpperCase();
+}
+function renderFilters(active){
+  document.getElementById('filters').innerHTML = '<span>Popular:</span>' + FILTER_SKILLS.map(s =>
+    `<button class="fchip ${active===s?'on':''}" onclick="setFilter('${s}')">${s}</button>`).join('');
+}
+function setFilter(skill){
+  const box = document.getElementById('search');
+  box.value = box.value.trim().toLowerCase()===skill ? '' : skill;
+  renderGrid(box.value);
+}
+function renderGrid(filter=""){
+  const grid = document.getElementById('grid');
+  const f = filter.trim().toLowerCase();
+  const items = state.listings.filter(l => !f || l.skills.some(s=>s.includes(f)) || l.title.toLowerCase().includes(f));
+  renderFilters(f);
+  paintUser();
+  document.getElementById('count').textContent = f
+    ? `${items.length} of ${state.listings.length} teams match "${filter.trim()}"`
+    : `${state.listings.length} teams looking for members`;
+  grid.innerHTML = items.length ? items.map(l => `
+    <div class="card" onclick="openListing(${l.id})">
+      <div class="card-top">
+        <span class="avatar" style="background:${avatarColor(l.owner)}">${initials(l.owner)}</span>
+        <div><div class="by">${l.owner===state.user.name ? 'You' : l.owner}</div><div class="status-open">${l.status}</div></div>
+        <span class="slots" aria-hidden="true">${Array.from({length:Math.min(l.size,6)},(_,i)=>`<i class="${i===0?'f':''}"></i>`).join('')}</span>
+      </div>
+      <h3>${l.title}</h3>
+      <p class="desc">${l.desc}</p>
+      <div class="skills">${l.skills.map(chip).join('')}</div>
+      <div class="card-foot">
+        <span>Team of ${l.size}</span>
+        ${l.owner===state.user.name ? `<div class="owner-row" onclick="event.stopPropagation()">
+          <span class="owner-tag">Your listing</span>
+          <button class="btn btn-ghost btn-sm" id="del-${l.id}" onclick="confirmDelete(${l.id})">Delete</button>
+        </div>` : `<span>Posted by ${l.owner}</span>`}
+      </div>
+    </div>`).join('') : `<div class="empty">No listings match that skill yet.</div>`;
+}
+
+function openListing(id){
+  const l = state.listings.find(x=>x.id===id);
+  const isOwner = l.owner===state.user.name;
+  const alreadyApplied = state.requests.some(r=>r.listingId===id && r.student===state.user.name);
+  let actionHtml;
+  if(isOwner){
+    actionHtml = `<button class="btn btn-primary" onclick="findMatches(${l.id})">Find suggested candidates</button>
+      <p class="note">This is your listing. The system ranks students for it and you decide whom to invite.</p>
+      <div id="matches"></div>`;
+  } else {
+    actionHtml = `<button class="btn btn-primary" ${alreadyApplied?'disabled':''} onclick="applyToJoin(${l.id})">${alreadyApplied?'Request sent, waiting for reply':'Apply to join'}</button>
+      <p class="note">${l.owner} posted this team and decides who is invited.</p>`;
+  }
+  document.getElementById('panel-body').innerHTML = `
+    <h2>${l.title}</h2>
+    <p style="color:var(--sub); margin-bottom:14px;">${l.desc}</p>
+    <div class="skills" style="margin-bottom:18px;">${l.skills.map(chip).join('')}</div>
+    ${l.invited && l.invited.length ? `<p class="note" style="color:var(--ok); font-weight:700; margin:0 0 12px;">Invited: ${l.invited.join(', ')}</p>` : ''}
+    ${actionHtml}`;
+  document.getElementById('overlay').classList.add('show');
+}
+function closePanel(){ document.getElementById('overlay').classList.remove('show'); }
+
+function findMatches(id){
+  const l = state.listings.find(x=>x.id===id);
+  const ranked = SEED_STUDENTS.map(s => ({s, ...score(l,s)})).sort((a,b)=>b.total-a.total).slice(0,3);
+  document.getElementById('matches').innerHTML = ranked.map((r,i) => {
+    const invited = (l.invited||[]).includes(r.s.name);
+    return `
+    <div class="cand">
+      <span class="rank">${i+1}</span>
+      <div><div class="cand-name">${r.s.name}</div><div class="why">Has ${l.skills.filter(sk=>r.s.skills[sk]).join(', ') || 'none of the required skills'}</div></div>
+      <span class="cand-score"><mark>${Math.round(r.total*100)}%</mark></span>
+      <div class="bars">
+        ${bar('Skill match', r.sm)} ${bar('Skill depth', r.sd)} ${bar('Capacity', r.wc)} ${bar('Past rating', r.pr)}
+      </div>
+      <button class="btn btn-ghost btn-sm" ${invited?'disabled':''} onclick="inviteCandidate(${l.id},'${r.s.name.replace(/'/g,"\\'")}')">${invited?'Invited':'Invite to team'}</button>
+    </div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(el=>el.style.width=el.dataset.w+'%'),30);
+}
+function bar(label, val){
+  const pct = Math.round(val*100);
+  return `<div class="bar-row"><span>${label}</span><div class="bar-track"><div class="bar-fill" data-w="${pct}"></div></div><span>${pct}%</span></div>`;
+}
+
+function inviteCandidate(listingId, name){
+  const l = state.listings.find(x=>x.id===listingId);
+  if(!l.invited) l.invited = [];
+  if(!l.invited.includes(name)) l.invited.push(name);
+  saveState();
+  findMatches(listingId);
+}
+
+function applyToJoin(listingId){
+  const l = state.listings.find(x=>x.id===listingId);
+  state.requests.push({id:state.nextReqId++, listingId, student:state.user.name, listing:l.title, owner:l.owner, status:'Pending'});
+  saveState();
+  closePanel();
+  renderRequests();
+  switchTab('requests');
+}
+
+function renderRequests(){
+  const received = state.requests.filter(r=>r.owner===state.user.name);
+  const sent = state.requests.filter(r=>r.student===state.user.name);
+  document.getElementById('req-received').innerHTML = received.length ? received.map(r=>`
+    <div class="req-row">
+      <div><strong>${r.student}</strong><div class="sub">wants to join ${r.listing}</div></div>
+      ${r.status==='Pending' ? `
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn btn-ghost btn-sm" onclick="setStatus(${r.id},'Rejected')">Reject</button>
+          <button class="btn btn-primary btn-sm" onclick="setStatus(${r.id},'Accepted')">Accept</button>
+        </div>` : `<span class="badge badge-${r.status.toLowerCase()}">${r.status}</span>`}
+    </div>`).join('') : `<div class="empty">No one has applied to your listings yet.</div>`;
+  document.getElementById('req-sent').innerHTML = sent.length ? sent.map(r=>`
+    <div class="req-row">
+      <div><strong>${r.listing}</strong><div class="sub">Posted by ${r.owner}</div></div>
+      <span class="badge badge-${r.status.toLowerCase()}">${r.status}</span>
+    </div>`).join('') : `<div class="empty">You have not applied to any team yet. Browse open teams to find one.</div>`;
+}
+function setStatus(id, status){
+  const r = state.requests.find(r=>r.id===id);
+  r.status = status;
+  if(status==='Accepted' && !state.user.memberOf.includes(r.listingId)) state.user.memberOf.push(r.listingId);
+  saveState();
+  renderRequests();
+}
+
+function confirmDelete(id){
+  const btn = document.getElementById('del-'+id);
+  if(!btn) return;
+  if(btn.dataset.armed === '1'){
+    deleteListing(id);
+  } else {
+    btn.dataset.armed = '1';
+    btn.textContent = 'Click again to confirm';
+    btn.style.color = 'var(--warn)'; btn.style.borderColor = 'var(--warn)';
+    setTimeout(()=>{ if(btn.isConnected){ btn.dataset.armed='0'; btn.textContent='Delete'; btn.style.color=''; btn.style.borderColor=''; } }, 3000);
+  }
+}
+function deleteListing(id){
+  state.listings = state.listings.filter(l=>l.id!==id);
+  state.requests = state.requests.filter(r=>r.listingId!==id);
+  saveState();
+  renderGrid();
+}
+
+function createListing(){
+  const title = document.getElementById('f-title').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const skills = document.getElementById('f-skills').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const size = parseInt(document.getElementById('f-size').value)||4;
+  const lerr = document.getElementById('listing-error');
+  if(!title || !skills.length){ lerr.textContent='Add a title and at least one required skill.'; lerr.style.display='block'; return; }
+  lerr.style.display='none';
+  state.listings.unshift({id:state.nextId++, title, desc:desc||'No description provided.', skills, size, status:'Open', owner:state.user.name, invited:[]});
+  saveState();
+  document.getElementById('f-title').value=''; document.getElementById('f-desc').value=''; document.getElementById('f-skills').value='';
+  document.getElementById('search').value='';
+  renderGrid();
+  switchTab('browse');
+}
+
+function loadProfileForm(){
+  document.getElementById('p-name').value = state.user.name;
+  document.getElementById('p-skills').value = Object.entries(state.user.skills).map(([k,v])=>`${k}:${v}`).join(', ');
+}
+function saveProfile(){
+  const newName = document.getElementById('p-name').value.trim() || state.user.name;
+  const raw = document.getElementById('p-skills').value;
+  const skills = {};
+  raw.split(',').map(s=>s.trim()).filter(Boolean).forEach(entry=>{
+    const [k,v] = entry.split(':').map(x=>x.trim());
+    if(k){ const n = parseInt(v); skills[k.toLowerCase()] = v ? Math.min(5,Math.max(1, Number.isNaN(n) ? 3 : n)) : 3; }
+  });
+  const oldName = state.user.name;
+  if(newName !== oldName){
+    state.listings.forEach(l=>{ if(l.owner===oldName) l.owner = newName; });
+    state.requests.forEach(r=>{ if(r.student===oldName) r.student = newName; if(r.owner===oldName) r.owner = newName; });
+  }
+  state.user.name = newName;
+  state.user.skills = skills;
+  saveState();
+  renderGrid();
+  const msg = document.getElementById('p-saved');
+  msg.style.display='block'; setTimeout(()=>msg.style.display='none', 1800);
+}
+
+function switchTab(name){
+  ['browse','create','requests','profile'].forEach(t=>{
+    document.getElementById('view-'+t).style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  if(name==='requests') renderRequests();
+  if(name==='profile') loadProfileForm();
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+document.getElementById('search').addEventListener('input', e=>renderGrid(e.target.value));
+document.getElementById('overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closePanel(); });
+
+renderGrid();
+renderHero();
+renderRoles();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "teamspark-tests",
+  "version": "1.0.0",
+  "description": "Automated test cases for TeamSpark (CSE3132 Software Engineering Lab)",
+  "scripts": {
+    "test": "jest --verbose",
+    "test:e2e": "playwright test",
+    "test:all": "jest --verbose && playwright test",
+    "test:coverage": "jest --coverage --coverage-provider=v8 --collectCoverageFrom=coverage-src/teamspark-app.js",
+    "test:selenium": "jest --config jest.selenium.config.js --runInBand --verbose"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "jest": "^29.7.0",
+    "selenium-webdriver": "^4.51.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e/",
+      "/selenium/"
+    ]
+  }
+}

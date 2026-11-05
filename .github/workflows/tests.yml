@@ -1,0 +1,20 @@
+name: TeamSpark tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Logic tests (Jest) with coverage
+        run: npm run test:coverage
+      - name: Browser tests (Playwright)
+        run: npx playwright test
+      - name: Browser tests (Selenium)
+        run: npm run test:selenium
